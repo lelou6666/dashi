@@ -2,9 +2,10 @@
 
 import os
 import codecs
-from dashi import __version__
 
-VERSION = __version__
+# STOP! you MUST also update this in dashi/__init__.py
+VERSION = "0.3.0"  # SEE ABOVE LINE BEFORE EDITING THIS
+# HEY! did you see the above two lines?
 
 if os.path.exists("README.rst"):
     long_description = codecs.open('README.rst', "r", "utf-8").read()
@@ -34,7 +35,7 @@ setupdict = {
     "download_url" : "http://www.nimbusproject.org/downloads/dashi-%s.tar.gz" % VERSION,
 }
 
-install_requires = ['kombu>=2.1.2,<2.5.0', 'pyyaml']
+install_requires = ['kombu>=2.5.0', 'pyyaml']
 tests_require = ["nose", "mock"]
 
 from setuptools import setup, find_packages

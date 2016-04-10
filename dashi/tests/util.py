@@ -5,6 +5,17 @@ import os
 import unittest
 import signal
 import socket
+<<<<<<< HEAD
+=======
+import logging
+
+from kombu.messaging import Queue
+from kombu.pools import connections
+
+from dashi.exceptions import NotFoundError
+
+log = logging.getLogger(__name__)
+>>>>>>> refs/remotes/nimbusproject/master
 
 
 def who_is_calling():
@@ -20,16 +31,31 @@ class SocatProxy(object):
     """Manages a TCP forking proxy using socat
     """
 
+<<<<<<< HEAD
     def __init__(self, destination, source_port=None):
+=======
+    def __init__(self, destination, source_port=None, source_options=None, destination_options=None):
+>>>>>>> refs/remotes/nimbusproject/master
         self.port = source_port or free_port()
         self.address = "localhost:%d" % self.port
         self.destination = destination
         self.process = None
+<<<<<<< HEAD
 
     def start(self):
         assert not self.process
         src_arg = "TCP4-LISTEN:%d,fork,reuseaddr" % self.port
         dest_arg = "TCP4:%s" % self.destination
+=======
+        self.source_options = "," + str(source_options) if source_options else ""
+        self.destination_options = "," + str(destination_options) if destination_options else ""
+
+    def start(self):
+        assert not self.process
+        src_arg = "TCP4-LISTEN:%d,fork,reuseaddr%s" % (self.port, self.source_options)
+        dest_arg = "TCP4:%s%s" % (self.destination, self.destination_options)
+        log.debug("Starting socat TCP proxy %s -> %s", self.port, self.address)
+>>>>>>> refs/remotes/nimbusproject/master
         try:
             self.process = subprocess.Popen(args=["socat", src_arg, dest_arg],
                 preexec_fn=os.setpgrp)
@@ -39,8 +65,14 @@ class SocatProxy(object):
 
     def stop(self):
         if self.process and self.process.returncode is None:
+<<<<<<< HEAD
             try:
                 os.killpg(self.process.pid, signal.SIGTERM)
+=======
+            log.debug("Stopping socat TCP proxy %s -> %s", self.port, self.address)
+            try:
+                os.killpg(self.process.pid, signal.SIGKILL)
+>>>>>>> refs/remotes/nimbusproject/master
             except OSError, e:
                 if e.errno != errno.ESRCH:
                     raise
@@ -69,3 +101,23 @@ def free_port(host="localhost"):
         return sock.getsockname()[1]
     finally:
         sock.close()
+<<<<<<< HEAD
+=======
+
+
+def get_queue_info(connection, queue):
+    """Returns queue name, message count, consumer count
+    """
+    with connections[connection._pool_conn].acquire(block=True) as conn:
+        q = Queue(queue.name, channel=conn, exchange=queue.exchange,
+            durable=queue.durable, auto_delete=queue.auto_delete)
+        # doesn't actually declare queue, just checks if it exists
+        try:
+            return q.queue_declare(passive=True)
+        except Exception as e:
+            # better way to check this?
+            if "NOT_FOUND" in str(e):
+                raise NotFoundError()
+            raise
+
+>>>>>>> refs/remotes/nimbusproject/master
